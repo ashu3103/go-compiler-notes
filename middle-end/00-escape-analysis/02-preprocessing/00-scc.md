@@ -56,3 +56,5 @@ To achieve this decomposition, **Tarjan’s algorithm** is commonly used. It eff
 3. Establish a topological order between SCCs, which directly supports bottom-up processing.
 
 **In short:** SCCs allow analysis to be organized into batches where recursive functions are grouped together, and non-recursive ones stand alone. Using Tarjan’s algorithm to compute these SCCs ensures that the analysis respects recursion and proceeds in a bottom-up, dependency-aware manner.
+
+> Note: Closures are always considered to be in batch with their enclosing function. Therefore, no closure can be a root of SCCs.
