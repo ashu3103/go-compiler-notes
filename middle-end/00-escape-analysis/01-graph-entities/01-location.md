@@ -175,3 +175,20 @@ Steps of creating a new location:
 - Add this newly created location to the `allLocs` slice.  
   This slice is initialized per function and is used to batch together all variable declarations collected during function setup.  
 - Finally, establish a **back pointer** from the node to this location (if the node does not already have one).
+
+## Synthetic Location
+
+In addition to the locations directly tied to variable declarations, escape analysis introduces a set of special locations that serve a broader purpose. These locations are not tied to a single variable but are instead universally available within a given analysis batch. Each of these has well-defined attributes that describe its behavior and role in the escape analysis process:
+
+* `heapLoc`: Represents a generic heap allocation site. Any value that escapes the current scope may end up here.
+   * Attributes: attrEscapes | attrPersists | attrMutates | attrCalls
+   * Meaning: values allocated here can escape their defining scope, persist beyond function boundaries, be mutated, and potentially be involved in function calls.
+
+* `mutatorLoc`: Represents a synthetic location used to capture mutation effects.
+   * Attributes: attrMutates
+   * Meaning: this location is used whenever mutation behavior needs to be modeled, without being tied to a concrete variable declaration.
+
+* `calleeLoc`: Represents the abstract location for callees in function calls.
+   * Attributes: attrCalls
+   * Meaning: used to model the flow of data into functions being called. It ensures that escape analysis accounts for values passed into callees.
+

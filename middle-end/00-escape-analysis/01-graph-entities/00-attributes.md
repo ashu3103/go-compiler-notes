@@ -95,4 +95,4 @@ For the closure location (the return value):
 - `attrCalls` is set because the closure may be invoked outside counter.
 - Escape analysis must track that the closure’s environment (including `x`) must remain valid when invoked.
 
-So both of these attributes are used in associativity with each other to make precise judgements.
+So both of these attributes collaborate with each other to make precise judgements.
