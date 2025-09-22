@@ -36,3 +36,11 @@ The number of pointer dereference operations that should be applied to reach the
 
 Indicates whether the address of the expression is being taken in this context, regardless of whether that address will eventually be stored in a variable. This flag is important because simply taking the address of a variable may cause it to escape, even if the address is not ultimately used elsewhere.
 
++-------+
+|   E   |
++-------+
+    |
+    v
++-------+
+|   D   |
++-------+
