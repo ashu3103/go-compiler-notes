@@ -27,9 +27,7 @@ This map stores the definition node for each candidate variable (where a candida
 - For locals, the map points to the assignment node (`OAS` or `OAS2`) created when the variable was declared.
 - For params, the map points directly to the defining function node.
 
-Think of this as a simplified def-use chain, but specialized for variables that are single-assignment only. Since in Go every form of declaration is internally lowered into a short variable declaration (`:=`), the oracle effectively captures the initial definition site of such variables.
-
-## Construction of Reassign Oracles
+Think of this as a simplified def-use chain, but specialized for variables that are single-assignment only. The oracle effectively captures the initial definition site of such variables.
 
 ## Construction of Reassign Oracles
 
