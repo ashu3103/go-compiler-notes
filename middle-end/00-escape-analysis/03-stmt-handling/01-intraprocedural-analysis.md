@@ -16,7 +16,9 @@ x, y = a, b
 
 ### Flow
 
-Flow is an API that models the creation of an edge between two locations: a hole (dst) and a source (src). The logic works as follows:
+Flow is an API that models the creation of an edge between two locations: a hole (dst) and a source (src).
+
+Internal of Flow API:
 
 - If the hole’s address is already marked as taken, propagate that marking to the source.
 - If the hole’s destination has the `attrEscapes` attribute and the operation represents an address-of (`dst = &src`), then propagate escape-related attributes (`attrEscapes`, `attrPersists`, `attrMutates`, `attrCalls`) to the source and stop further processing.
@@ -98,3 +100,24 @@ When the analysis processes an assignment statement, it first creates holes for 
 - In multiple assignments like `x, y = a, b`, separate edges are created from `a → x` and `b → y`.
 - For type assertions `(v, ok = x.(type))`, edges are added from the asserted expression `x` to the new variables `v` and `ok`.
 - For map lookups (`v, ok = m[k]`), edges are created from the map access result to the target variables.
+
+## Return Statement
+
+- Op: `ORETURN`
+- Statement: `return x, y`
+
+When analyzing a return statement, the compiler first allocates a placeholder (or "hole") for each of the function’s result parameters. It then evaluates each expression in the return statement to determine its corresponding location in memory. The computed value from each expression is then assigned to the appropriate placeholder, effectively "flowing" the value into the function’s output slots.
+
+**Example:**
+
+```go
+func addAndMultiply(a, b int) (int, int) {
+	sum = a + b
+    product = a * b
+    return sum, product
+}
+```
+
+- A hole is created for `~r0` and another for `~r1`.
+- The expressions `sum` and `product` are evaluated to determine their memory locations.
+- The locations of `sum` and `product` are then assigned to their respective holes i.e. `~r0`, `~r1`, which correspond to the function’s result parameters.
