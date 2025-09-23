@@ -6,25 +6,74 @@ Because the data flow graph can contain **negative edges** (introduced by addres
 
 > Dereference Count: The dereference count from one location (`root`) to other.
 
-Here’s a high-level overview of what `walkOne` does:
+## Bellman Ford Style Walk
 
-1. **Initialization**:  
-   The root location is initialized with zero dereferences, and its `walkgen` field is set to track this analysis pass.
+Starting from a root location in a weighted graph (where vertices are locations and edges carry dereference costs), the goal is to compute the minimal dereference count (analogous to shortest path cost) from the root to every other location.
 
-2. **Closure Handling**:  
-   If the root represents a closure call, the function marks any lost closure results and re-flows from them to correctly track escapes.
+The process works as follows:
 
-3. **Propagation**:  
-   Using a queue, `walkOne` iteratively processes each location (BFS traversal):
-   - It calculates the effective dereference count to the root.
-   - If the location’s address flows to the root, the dereference count is clamped to 0.
-   - It determines whether the location **escapes** to the heap, needs to **persist**, or is affected by **mutations/calls** based on the root’s attributes and its own flow.
+* Initialization:
+    * Set `root.walkgen` to the current traversal identifier.
+    * Assign `root.derefs = 0` (since the root has no cost to reach itself).
+    * Clear `root.dst`.
+    * Initialize a work queue todo and push root into it.
+* Iterative Walk:
+  While the queue is not empty:
+    * Remove a location `l` from the queue.
+    * Mark `l` as no longer pending for processing.
+    * Record its current dereference count (`derefs`) and compute any new attributes that will be propagated further.
+* Neighbor Relaxation:
+  For each outgoing edge of `l`:
+    * Skip the edge if its source already has the `attrEscapes` attribute.
+    * Otherwise, compute the tentative dereference value `d = l.derefs + edge.derefs`.
+    * If the edge’s source location (`edge.src`) has not been visited in this traversal (`walkgen`) or can now be reached with fewer dereferences (`edge.src.derefs > d`):
+        * Update its walkgen to the current traversal.
+        * Set its derefs to `d`.
+        * Record `l` as the predecessor (`dst`) along with the index of the edge used.
+        * If not already queued, enqueue the source location for further exploration.
 
-4. **Function Parameters and Results**:  
-   For parameters, the analysis records how values leak or escape, and tags the parameter with mutator and callee information for further function-level analysis.
+```go
+root.walkgen = walkgen
+root.derefs = 0
+root.dst = nil
 
-5. **Edge Updates**:  
-   For each outgoing edge from the current location, the function updates dereference counts if a shorter path is found. Locations are then queued for further processing until all reachable locations have been analyzed.
+todo := newQueue(1)
+todo.pushFront(root)
+
+for todo.len() > 0 {
+    l := todo.popFront()
+    l.queuedWalkOne = 0 // no longer queued for walkOne
+
+    derefs := l.derefs
+    var newAttrs locAttr
+
+    analysis() // in next section
+
+    for i, edge := range l.edges {
+        if edge.src.hasAttr(attrEscapes) {
+            continue
+        }
+        d := derefs + edge.derefs
+        if edge.src.walkgen != walkgen || edge.src.derefs > d {
+            edge.src.walkgen = walkgen
+            edge.src.derefs = d
+            edge.src.dst = l
+            edge.src.dstEdgeIdx = i
+            if edge.src.queuedWalkOne != walkgen {
+                edge.src.queuedWalkOne = walkgen
+                todo.pushBack(edge.src)
+            }
+        }
+    }
+}
+```
+
+## Attribute Propagation
+
+- Address flow check: If the address of a location (`l`) flows up to the `root` and the `root` outlives `l`, then `l` must be placed on the heap. In that case, we copy all important attributes (escapes, persists, mutates, calls) to it.
+- Value flow tracking: The value of `l` always flows to the `root`. If `l` is a function parameter and the `root` is the heap or a result parameter, we record this flow so the function can be tagged later.
+- Stop if escaping: If `l` is marked as escaping (`attrEscapes`), we don’t analyze its children further and just move on to the next item in the queue.
+
 
 Through this process, `walkOne` identifies **all locations that may escape**, propagating the minimal dereference counts and marking objects that cannot safely stay on the stack. This is essential for precise escape analysis and efficient memory allocation in languages like Go.
 
