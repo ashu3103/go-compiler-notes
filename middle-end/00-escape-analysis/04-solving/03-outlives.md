@@ -5,7 +5,7 @@ The Outlives analysis determines whether the value stored at a particular locati
 ## Constraints
 
 - If the location `root` is marked with the `attrEscapes` attribute, it is guaranteed to outlive `other`.
-- Go cannot reliably predict what a caller does with returned values (function result parameters). Therefore, it conservatively assumes that any such value may escape to the heap. Consequently, if `l.paramOut == true`, `root` is considered to outlive `other`.
+- Go cannot reliably predict what a caller does with returned values (function result parameters). Therefore, it conservatively assumes that any such value may escape to the heap. Consequently, if `l.paramOut == true`, `root` is considered to outlive `other`. [Easter Egg]
 - When both `root` and `other` are in the same function, `root` will outlive `other` if it was declared outside the scope of `other`. For example:
     ```go
     var root *int
@@ -22,4 +22,4 @@ The Outlives analysis determines whether the value stored at a particular locati
 	}
     ```
 
-> Note: All global variables are implicitly marked with attrEscape. Therefore, any location that flows to a global variable is also considered to escape.
+> Easter Egg: All global variables are implicitly marked with attrEscape. Therefore, any location that flows to a global variable is also considered to escape.

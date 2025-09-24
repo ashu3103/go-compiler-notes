@@ -30,7 +30,7 @@ Internal of Call API:
     By traversing the call graph, we can determine that `f` refers to the function `a`, so we use the node of `a` for analysis.
 * Handle the case where the callee function is unknown.
     * If the callee can be identified statically (`fn != nil`), we perform a precise mapping between the call arguments and the callee’s parameters/results.
-    * If the callee is unknown (`fn == nil`), we conservatively assume that the results may escape to the heap. This acts as a safety fallback for cases such as closures flowing into the call site.
+    * If the callee is unknown (`fn == nil`), we conservatively assume that the results may escape to the heap. This acts as a safety fallback for cases such as closures flowing into the call site. [Easter Egg]
 * For a statically known callee, we construct `tagHole` nodes for each parameter of the callee. These holes are then connected to the corresponding arguments from the caller’s call expression in a one-to-one mapping.
 
 ```go

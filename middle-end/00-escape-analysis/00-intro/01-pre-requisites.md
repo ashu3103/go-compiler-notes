@@ -101,7 +101,7 @@ func add(x, y int, ~ret int) {
 
 Here `x` and `y` are `PPARAM` and `~ret` is `PPARAMOUT` while `z` is `PAUTO` (local variable).
 
-> Note: The global variables are always allocated to heap, have a look at the code below
+> Easter Egg: The global variables are always allocated to heap, have a look at the code below
 
 ```go
 func (n *Name) OnStack() bool {
@@ -139,8 +139,6 @@ The `Defn` field points to the node where the identifier is originally declared.
 - Local or global variables: Points to the initializing assignment node (`OAS`, `OAS2`).
 - Closure-captured variables: Points to the ONAME node of the outermost variable being captured.
 - Function names: Points to the corresponding Func node.
-
-> Note: In Go, a var declaration is internally lowered to an assignment (`:=`) operation in the intermediate representation (`OAS` / `OAS2`). Because of this transformation, even uninitialized variables in Go appear as though they have an initial assignment, which explains why they automatically receive a zero-value by default.
 
 ### Curfn
 

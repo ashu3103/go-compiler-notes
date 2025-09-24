@@ -71,7 +71,7 @@ for todo.len() > 0 {
 ## Attribute Propagation
 
 - Address flow check: If the address of a location (`l`) flows up to the `root` and the `root` outlives `l`, then `l` must be placed on the heap. In that case, we copy all important attributes (escapes, persists, mutates, calls) to it.
-- Value flow tracking: The value of `l` always flows to the `root`. If `l` is a function parameter and the `root` is the heap or a result parameter, we record this flow so the function can be tagged later.
+- Value flow tracking: The value of `l` always flows to the `root`. If `l` is a function parameter and the `root` is the heap or a result parameter, we record this flow so the function can be tagged later. [Easter Egg]
 - Stop if escaping: If `l` is marked as escaping (`attrEscapes`), we don’t analyze its children further and just move on to the next item in the queue.
 
 

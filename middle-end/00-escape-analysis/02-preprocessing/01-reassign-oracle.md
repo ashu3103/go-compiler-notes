@@ -96,6 +96,4 @@ Some common use cases include:
 
 - **Constant Propagation**: Detecting when a variable always evaluates to the same value, enabling the compiler to replace the variable with that constant directly.  
 - **Dead Code Elimination**: Identifying assignments that do not affect the final outcome of the program, allowing the compiler to remove redundant operations.  
-- **Escape Analysis Support**: Ensuring that reassignments are properly tracked, which helps in determining whether an object must live on the heap or can remain on the stack. Helps to track and report mutating site  
-
-In essence, the Reassign Oracle helps the compiler (or analysis tool) answer the critical question: *Can we trust this variable to always have the same value, or do we need to account for possible changes?*
+- **Escape Analysis Support**: Ensuring that reassignments are properly tracked, which helps in determining whether an object must live on the heap or can remain on the stack. Helps to track and report mutating site

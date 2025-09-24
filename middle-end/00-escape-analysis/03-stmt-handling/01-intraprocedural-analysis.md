@@ -48,11 +48,11 @@ Suppose we are analyzing a node `n` (which is an isolated LHS expression) to det
 - **Identifier (`ONAME`)**:  
   If the identifier belongs to the `PEXTERN` class (i.e., it is a global variable), then the hole is simply `heapHole`. Otherwise, the hole corresponds to the memory location of that identifier.  
 - **Selector (`ODOT`, written as `X.Sel`)**:  
-  The hole is obtained by computing the hole for the base expression `X`. However, this approach is *field-insensitive* because it treats `X.Sel` as equivalent to just `X`, ignoring which specific field is being accessed.  
+  The hole is obtained by computing the hole for the base expression `X`. However, this approach is *field-insensitive* because it treats `X.Sel` as equivalent to just `X`, ignoring which specific field is being accessed. [Easter Egg]
 - **Dereference (`ODEREF`, written as `*X`)**:  
-  In this case, the base expression `X` is considered mutable, and the hole is set to `heapHole`. This introduces imprecision, because dereferencing effectively points to an unknown or potentially arbitrary memory location. Without strong alias information, it is conservative to assume the access could target any heap location.  
+  In this case, the base expression `X` is considered mutable, and the hole is set to `heapHole`. This introduces imprecision, because dereferencing effectively points to an unknown or potentially arbitrary memory location. Without strong alias information, it is conservative to assume the access could target any heap location. [Easter Egg]
 - **Pointer Selector (`ODOTPTR`, written as `X.Sel` where `X` is a pointer to a struct)**:  
-  This is treated the same way as dereference: we take the hole as `heapHole` for the same reason of potential imprecision.  
+  This is treated the same way as dereference: we take the hole as `heapHole` for the same reason of potential imprecision. [Easter Egg]
 - **Indexing of an array (`OINDEX`, written as `X[ind]` where `X` is an array)**:  
   The hole is taken as the hole of the underlying array `X`, since accessing an array element is essentially accessing a part of the array.  
 - **Indexing of a slice (`OINDEX`, written as `X[ind]` where `X` is a slice)**:  
