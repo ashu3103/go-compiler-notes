@@ -22,4 +22,4 @@ The Outlives analysis determines whether the value stored at a particular locati
 	}
     ```
 
-> Easter Egg: All global variables are implicitly marked with attrEscape. Therefore, any location that flows to a global variable is also considered to escape.
+> Note: All global variables are implicitly marked with attrEscape. Therefore, any location that flows to a global variable is also considered to escape.

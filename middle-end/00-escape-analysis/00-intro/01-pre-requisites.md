@@ -101,7 +101,7 @@ func add(x, y int, ~ret int) {
 
 Here `x` and `y` are `PPARAM` and `~ret` is `PPARAMOUT` while `z` is `PAUTO` (local variable).
 
-> Easter Egg: The global variables are always allocated to heap, have a look at the code below
+> Note: The global variables are always allocated to heap, have a look at the code below
 
 ```go
 func (n *Name) OnStack() bool {
