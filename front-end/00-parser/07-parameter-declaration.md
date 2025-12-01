@@ -15,15 +15,21 @@ The function enforces this combined grammar for parameters and type constraints:
 
 ## Parsing
 
+### Variant-1: Enclosed in Parenthesis
+
+The parameter list in enclosed parenthesis should contain either an identifier list followed by a type or an anonymous/embedded field.
+
 |Step                               |Token                                                                                                                                                                                                                                                                                   |Action                             |Example Handled                                    |
 |-----------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------|---------------------------------------------------|
 |Name Check                         |`_Name` (Identifier)                                                                                                                                                                                                                                                                      |Consumes the identifier(s). The field now has a Name.|count `int`                                          |
 |Name Extensions                    |`_Lbrack` (`[`) after name                                                                                                                                                                                                                                                                  |Parses Array, Slice or Type Arguments (e.g. `T[A]`).|`data [10]byte`                                      |
 |                                   |`_Dot` (`.`) after name                                                                                                                                                                                                                                                                     |Parses a Qualified Identifier (e.g. `pkg.Type`).|`log.Logger`                                         |
 |Variadic Check                     |_DotDotDot (`...`)                                                                                                                                                                                                                                                                        |Consumes `...`. Recursively calls `p.typeOrNil()` for the element type. Returns a `DotsType` AST node.|`...int`                                             |
-|Constraint Check (Tilde)           |`_Operator` (`~`)                                                                                                                                                                                                                                                                           |Parses the "underlying type" constraint term by calling `p.embeddedElem`.|`type T interface{ ~int }`                           |
 |Standard Type                      |Any other type token (`_Star`, `_Map` etc.)                                                                                                                                                                                                                                                  |Calls the generic `p.typeOrNil()` routine to parse the full type expression.|`map[string]User`                                    |
-|Constraint Check (Union)           |`_Operator` (`\|`) after a type                                                                                                                                                                                                                                                              |If a type was parsed (Step 5) calls `p.embeddedElem` to handle type union constraints.|`type T interface{ string \| int }`                   |
+
+### Variant-2: Enclosed in Brackets
+
+The parameter list in enclosed brackets should contain an identifier list followed by a type, an anonymous/embedded field or type set constraints. They also take embedded elements in account
 
 ### Parsing Embedded Elements and Constraints
 
