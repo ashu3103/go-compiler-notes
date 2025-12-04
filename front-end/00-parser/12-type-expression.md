@@ -20,7 +20,77 @@ TypeLit  = ArrayType | StructType | PointerType | FunctionType | InterfaceType |
 |`_Chan` (`chan`)                       |Send,Receive or Unbuffered Channel                             |`chan<- bool` or `chan int`|Lookahead Decision: Consumes `chan`. It checks if the next token is `_Arrow` (`<-`). If so, it sets the direction (`Dir` field) of `ChaType` expression to Send Only (SendOnly). If not, the channel is bidirectional/unbuffered. Finally, it parses the element type recursively and flows it to the corresponding `Elem` field.|
 |`_Map` (`map`)                         |Map Type                                                                                                                                                                                                                                                                                |`map[int]string`                     |Key and Value: Consumes map. It demands `_Lbrack` (`[`), parses the Key Type (field of `MapType`) (say `int`), demands `_Rbrack` (`]`), and then parses the Value Type (say `string`). Returns the `MapType` expression |
 |`_Struct` (`struct`)                   |Struct Type                                                                                                                                                                                                                                                                             |`struct { Name string }`             |Field List Handlers: The parser calls dedicated functions (`p.structType()`) that then use the Field Declaration grammar to populate the list of fields and tags within the struct body (`{...}`). Returns the `StructType` expression |
-|_Interface (interface)             |Interface Type                                                                                                                                                                                                                                                                          |interface { Read() int }           |Method List Handlers: The parser calls a dedicated function (p.interfaceType()) to read and parse the list of method signatures.|
+|`_Interface` (`interface`)             |Interface Type                                                                                                                                                                                                                                                                          |`interface { Read() int }`           |Method List Handlers: The parser calls a dedicated function (p.interfaceType()) to read and parse the list of method signatures.|
 |`_Name` (identifier)                 |Named or Qualified Type                                                                                                                                                                                                                                                                 |`MyType` or `net.Conn`                 |Name Resolution: Parses the identifier. If it contains a dot (`.`), it's a Qualified Ident (referencing a type in another package, like `net.Conn`). If it's a single name, it's a local Named Type (`MyType`). Basically, returns the expression obtained by resolving qualified name see (TODO<link>) |
 |`_Lparen` (`(`)                        |Parenthesized Type                                                                                                                                                                                                                                                                      |`(*int)`                             |Grouping: Consumes `(`. Recursively parses the type expression inside (say `*int`), then demands `_Rparen` (`)`). The parentheses themselves are usually discarded unless they are required for semantic checks (which is often configurable).|
+
+## Types of type expressions
+
+```go
+ListExpr struct {
+    ElemList []Expr
+    expr
+}
+
+// [Len]Elem
+ArrayType struct {
+    Len  Expr // nil means Len is ...
+    Elem Expr
+    expr
+}
+
+// []Elem
+SliceType struct {
+    Elem Expr
+    expr
+}
+
+// ...Elem
+DotsType struct {
+    Elem Expr
+    expr
+}
+
+// struct { FieldList[0] TagList[0]; FieldList[1] TagList[1]; ... }
+StructType struct {
+    FieldList []*Field
+    TagList   []*BasicLit // i >= len(TagList) || TagList[i] == nil means no tag for field i
+    expr
+}
+
+// Name Type
+//      Type
+Field struct {
+    Name *Name // nil means anonymous field/parameter (structs/parameters), or embedded element (interfaces)
+    Type Expr  // field names declared in a list share the same Type (identical pointers)
+    node
+}
+
+// interface { MethodList[0]; MethodList[1]; ... }
+InterfaceType struct {
+    MethodList []*Field
+    expr
+}
+
+FuncType struct {
+    ParamList  []*Field
+    ResultList []*Field
+    expr
+}
+
+// map[Key]Value
+MapType struct {
+    Key, Value Expr
+    expr
+}
+
+//   chan Elem
+// <-chan Elem
+// chan<- Elem
+ChanType struct {
+    Dir  ChanDir // 0 means no direction
+    Elem Expr
+    expr
+}
+```
 
