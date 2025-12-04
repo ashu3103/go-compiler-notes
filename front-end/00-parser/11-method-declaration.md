@@ -57,15 +57,3 @@ interface {
     io.Reader 
 }
 ```
-
-3 Function Signature Type
-
-Once the compiler decides it's parsing a method (Scenario 1), it needs to capture the entire "function signature type," which is the method's full contract.
-
-The signature is defined by two lists:
-
-* Parameter List: What the method takes in (e.g. (`p []byte`)). The parser just calls another helper function to handle this part.
-* Result List: What the method gives back. This can be:
-     * A full list of named or unnamed return parameters (e.g. `(n int, err error)`).
-     * A single, unnamed return type (e.g. `int`).
-     * An empty list (e.g. `()`).
